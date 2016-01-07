@@ -103,6 +103,9 @@ static void force_trsm_column_major(Args & args)
     printf("OpenCL error %i on line %u\n", RET, __LINE__); \
     assert(false); \
       }
+#define returnIfErr(err) \
+	if (err != CL_SUCCESS)\
+		return static_cast<clblasStatus>(err);
 
 #define min(x,y) ((x)<(y)?(x):(y))
 
@@ -874,7 +877,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_16_PART2_L_clKernel,
 					triple_dgemm_update_128_16_PART2_L_src,
 					TrtriBuildOptions,
@@ -883,7 +887,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				break;
 
 			case 32:
@@ -897,7 +902,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);	
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_32_PART2_L_clKernel,
 					triple_dgemm_update_128_32_PART2_L_src,
 					TrtriBuildOptions,
@@ -906,7 +912,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				break;
 
 			case 64:
@@ -920,7 +927,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_64_PART2_L_clKernel,
 					triple_dgemm_update_128_64_PART2_L_src,
 					TrtriBuildOptions,
@@ -929,7 +937,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				break;
 
 			default:
@@ -944,7 +953,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_ABOVE64_PART2_L_clKernel,
 					triple_dgemm_update_128_ABOVE64_PART2_L_src,
 					TrtriBuildOptions,
@@ -953,7 +963,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_ABOVE64_PART3_L_clKernel,
 					triple_dgemm_update_128_ABOVE64_PART3_L_src,
 					TrtriBuildOptions,
@@ -962,7 +973,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				break;
 
 			}
@@ -987,17 +999,23 @@ cl_int diag_dtrtri128(
 
 		int isDiagUnit = (diag == clblasUnit);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 0, sizeof(int), &isDiagUnit);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 1, sizeof(cl_mem), &A);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 2, sizeof(unsigned int), &offA);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 3, sizeof(cl_mem), &d_dinvA);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 4, sizeof(unsigned int), &lda);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 		err = clSetKernelArg(*diag_dtrtri_kernel_upper_ClKernel, 5, sizeof(unsigned int), &m);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+		returnIfErr(err);
 
 		size_t globalThreads[1] = { nthreads };
 		size_t globalLocal[1] = { inner_block_size };
@@ -1005,7 +1023,8 @@ cl_int diag_dtrtri128(
 		err = clEnqueueNDRangeKernel(queue, *diag_dtrtri_kernel_upper_ClKernel, 1, NULL,
 			globalThreads, globalLocal,
 			0, NULL, NULL);
-		CL_CHECK(err);
+		//CL_CHECK(err);
+                returnIfErr(err);
 		//err = clFinish(queue);
 		//CL_CHECK(err);
 
@@ -1035,7 +1054,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+                                returnIfErr(err)
 				//err = clFinish(queue);
 				//CL_CHECK(err);
 				break;
@@ -1052,7 +1072,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+                                returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_32_PART2_R_clKernel,
 					triple_dgemm_update_128_32_PART2_R_src,
 					TrtriBuildOptions,
@@ -1061,8 +1082,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
-
+				//CL_CHECK(err);
+                                returnIfErr(err);
 				break;
 
 			case 64:
@@ -1077,7 +1098,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+				returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_64_PART2_R_clKernel,
 					triple_dgemm_update_128_64_PART2_R_src,
 					TrtriBuildOptions,
@@ -1086,8 +1108,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
-
+				//CL_CHECK(err);
+				returnIfErr(err);
 				break;
 
 			default:
@@ -1102,7 +1124,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+                                returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_ABOVE64_PART2_R_clKernel,
 					triple_dgemm_update_128_ABOVE64_PART2_R_src,
 					TrtriBuildOptions,
@@ -1111,7 +1134,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+                                returnIfErr(err);
 				err = call_kernel_triple_update128(&triple_dgemm_update_128_ABOVE64_PART3_R_clKernel,
 					triple_dgemm_update_128_ABOVE64_PART3_R_src,
 					TrtriBuildOptions,
@@ -1120,7 +1144,8 @@ cl_int diag_dtrtri128(
 					TrtribinBuildOptions,
 					queue,
 					A, offA, d_dinvA, i, lda, M, event);
-				CL_CHECK(err);
+				//CL_CHECK(err);
+                                returnIfErr(err);
 				break;
 			}
 
